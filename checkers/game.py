@@ -68,7 +68,7 @@ class Game:
                         self.select(row, col)
                 except BadMoveExceptions:
                     self.bad_move_exce = True
-                    print("bad move")
+
 
             piece = self.board.get_piece(row, col)
 

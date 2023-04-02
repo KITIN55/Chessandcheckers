@@ -36,7 +36,7 @@ class ChessBoard:
         self.played_moves = []
 
     def get_all_pieces(self):
-        """Returns list of all pieces on board"""
+
         pieces = []
         for x in range(8):
             for y in range(8):
@@ -45,7 +45,7 @@ class ChessBoard:
         return pieces
 
     def get_curr_player_pieces(self):
-        """Returns all remaining pieces of current player"""
+
         pieces = []
         for piece in self.get_all_pieces():
             if piece.color == self.curr_player:
@@ -54,19 +54,18 @@ class ChessBoard:
 
 
     def get_poss_moves_for(self, piece):
-        """Returns all possible moves for piece given"""
-        # NOTE: Must check for a Castle move if king is selected
+
         if piece.name != 'King':
             return piece.get_possible_moves(self.board)
         else:
             return piece.get_possible_moves(self.board) + self.get_castle_moves_for_curr_player()
 
     def get_piece_at(self, space):
-        """Returns piece at space"""
+
         return self.board[space[0]][space[1]]
 
     def get_type_pieces_of_player(self, piece_name, player):
-        """Returns all pieces of type given of player given"""
+
         pieces = []
         for row in self.board:
             for space in row:
@@ -75,8 +74,7 @@ class ChessBoard:
         return pieces
 
     def move_piece(self, piece, new_position):
-        """Moves piece to new position AND changes has_moved to TRUE
-        Returns piece if piece taken, none if not"""
+
         pos = piece.position
         piece_to_take = self.board[new_position[0]][new_position[1]]
         piece.move(new_position)
@@ -90,14 +88,14 @@ class ChessBoard:
         return None
 
     def non_permanent_move(self, piece, new_position):
-        """Moves piece and does NOT change has_moved to true. Used to check for checks/checkmates"""
+
         pos = piece.position
         piece.move(new_position)
         self.board[new_position[0]][new_position[1]] = piece
         self.board[pos[0]][pos[1]] = None
 
     def get_castle_moves_for_curr_player(self):
-        """Returns list of possible castle positions"""
+
         castles = []
         king = self.get_type_pieces_of_player('King', self.curr_player)[0]
         y = 0 if self.curr_player == 'w' else 7
@@ -125,9 +123,7 @@ class ChessBoard:
         return castles
 
     def castle_king(self, king, new_king_position):
-        """Given king piece and one of the four king positions that can make a castle. Moves king to that position and
-        moves corresponding rook as well"""
-        # NEW_KING_POS = (2, 0), (6, 0), (2, 7), (6, 7)
+
         corresponding_rook = {(2, 0): (0, 0), (6, 0): (7, 0), (2, 7): (0, 7), (6, 7): (7, 7)}
         corresponding_rook_move = {(2, 0): (3, 0), (6, 0): (5, 0), (2, 7): (3, 7), (6, 7): (5, 7)}
         rook_pos = corresponding_rook[new_king_position]
@@ -136,9 +132,7 @@ class ChessBoard:
         self.move_piece(rook, corresponding_rook_move[new_king_position])
 
     def non_permanent_castle_king(self, king, new_king_position):
-        """Given king piece and one of the four king positions that can make a castle. Moves king to that position and
-        moves corresponding rook as well. DOES NOT change piece has_moved"""
-        # NEW_KING_POS = (2, 0), (6, 0), (2, 7), (6, 7)
+
         corresponding_rook = {(2, 0): (0, 0), (6, 0): (7, 0), (2, 7): (0, 7), (6, 7): (7, 7)}
         corresponding_rook_move = {(2, 0): (3, 0), (6, 0): (5, 0), (2, 7): (3, 7), (6, 7): (5, 7)}
         rook_pos = corresponding_rook[new_king_position]
@@ -147,7 +141,7 @@ class ChessBoard:
         self.non_permanent_move(rook, corresponding_rook_move[new_king_position])
 
     def uncastle_king(self, king):
-        """Reverts a castle move"""
+
         corresponding_rook = {(2, 0): (3, 0), (6, 0): (5, 0), (2, 7): (3, 7), (6, 7): (5, 7)}
         corresponding_rook_move = {(2, 0): (0, 0), (6, 0): (7, 0), (2, 7): (0, 7), (6, 7): (7, 7)}
         rook_pos = corresponding_rook[king.position]
@@ -157,23 +151,22 @@ class ChessBoard:
 
 
     def king_in_check(self, king, b):
-        """Returns if king is currently in check given board"""
-        # Check for bishop or queen in diagonal path of king
+
         for m in king.get_possible_diagonal_moves(b):
             if b[m[0]][m[1]] and b[m[0]][m[1]].name in ['Bishop', 'Queen']:
                 return True
 
-        # Check for rook or queen in straight path of king
+
         for m in king.get_possible_straight_line_moves(b):
             if b[m[0]][m[1]] and b[m[0]][m[1]].name in ['Rook', 'Queen']:
                 return True
 
-        # Check for opponent king next to current king
+
         for m in king.get_possible_moves(b):
             if b[m[0]][m[1]] and b[m[0]][m[1]].name == 'King':
                 return True
 
-        # Check for opponent knights
+
         for m in [(1, 2), (2, 1), (-1, 2), (-2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1)]:
             pos = king.position[0] + m[0], king.position[1] + m[1]
             if pos[0] < 0 or pos[0] > 7 or pos[1] < 0 or pos[1] > 7:
@@ -182,9 +175,9 @@ class ChessBoard:
                     and b[pos[0]][pos[1]].color != self.curr_player:
                 return True
 
-        # Check for opponent pawns
+
         y_dir = 1 if self.curr_player == 'w' else -1
-        # Check diagonals
+
         l_diag = king.position[0] - 1, king.position[1] + y_dir
         r_diag = king.position[0] + 1, king.position[1] + y_dir
 
@@ -196,7 +189,7 @@ class ChessBoard:
                 return True
 
     def is_curr_player_in_check(self, piece, moves):
-        """Returns list of valid moves that don't put player in check. """
+
         king = self.get_type_pieces_of_player('King', self.curr_player)[0]
         b = self.board
         piece_original_pos = piece.position
@@ -204,14 +197,14 @@ class ChessBoard:
         poss_moves = []
 
         for move in moves:
-            # Move piece to new move
+
             piece_at_move_pos = self.board[move[0]][move[1]]
             self.non_permanent_move(piece, move)
 
             if not self.king_in_check(king, b):
                 poss_moves.append(move)
 
-            # Move piece back to original position
+
             self.non_permanent_move(piece, piece_original_pos)
             self.board[move[0]][move[1]] = piece_at_move_pos
 
