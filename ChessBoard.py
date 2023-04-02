@@ -100,9 +100,9 @@ class ChessBoard:
         king = self.get_type_pieces_of_player('King', self.curr_player)[0]
         y = 0 if self.curr_player == 'w' else 7
         b = self.board
-        # Check king and rook have not moved
+
         if b[0][y] and not b[0][y].has_moved and b[4][y] and not b[4][y].has_moved:
-            # Check no pieces in between rook and king
+
             if all(not b[x][y] for x in range(1, 4)):
                 if not self.king_in_check(king, self.board):
                     castles.append((2, y))
@@ -112,12 +112,12 @@ class ChessBoard:
                 if not self.king_in_check(king, self.board):
                     castles.append((6, y))
 
-        # Simulate both moves and check player is in check
+
         for move in castles:
             self.non_permanent_castle_king(king, move)
             if self.king_in_check(king, self.board):
                 castles.remove(move)
-            # Uncastle pieces
+
             self.uncastle_king(king)
 
         return castles
